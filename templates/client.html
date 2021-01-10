@@ -1,0 +1,112 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>Flask_Chat_App</title>
+    <script src = "../static/js/socket.io.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      const socket = io();
+      var username = `{{user}}`;
+      var room = "Coding";
+      var rooms = `{{rooms}}`;
+      joinRoom(room)
+      
+      
+    // client-side
+      //socket.on("connect", () => {
+        //socket.send({'msg': "I am connected", "username": username} );
+       //console.log("This is " + socket.id); // x8WIv7-mJelg7on_ALbx
+    //});
+    socket.on('message', data =>{
+      //var par = `${data['username']} : ${data['message']}`;
+      alert(data['message'])
+    });
+    socket.on('chit', data =>{
+      //var par = `${data['username']} : ${data['message']}`;
+      alert(data['message'])
+    });
+
+    
+    $('#sendMessage').click(function(){
+      var text = $('#user_message').val();
+      socket.emit("chat",{'message':text, 'username': username, 'room':room})
+      //console.log(text);
+      $('#user_message').value = " " ;
+    });
+
+    //room selection
+
+    let ROOMS = document.querySelectorAll(".room");
+        let all_room = Array.from(ROOMS)
+        //console.log(room)
+        all_room.forEach(r => {
+            r.addEventListener("click", (event) => {
+                const current_room = event.target.textContent
+                if (current_room == room){
+                  var msg = `You are already in the ${room} room`;
+                  printSysMsg(msg)
+                }
+                else{
+                  leaveRoom(room);
+                  console.log(`You are left in the ${room} room`);
+                  joinRoom(current_room);
+                  console.log(`You are have joined ${current_room} room`);
+                  room = current_room;
+                  
+                }
+            })
+          });
+
+    //Leave Room
+    function leaveRoom(room){
+      socket.emit('leave', {'username':username,'room':room});
+    }
+
+    //Join Room
+    function joinRoom(room){
+      socket.emit('join', {'username':username,'room':room});
+    }
+
+    // print system message
+    function printSysMsg(msg){
+      alert(msg)
+    }
+
+    })
+    </script>
+  </head>
+  <body>
+    <nav>
+
+    </nav>
+
+    <div id = "section">
+    
+      <nav id ="sidebar">
+        <h4>ROOMS</h4>
+        {% for room in rooms%} 
+        <p class = "room">{{room|title}}</p>
+        {% endfor %}
+
+      </nav>
+
+      <div id = "rightside">
+        <div id ="chatarea">
+
+        </div>
+
+        <div id ="input-area">
+          <input type = 'text' id ="user_message" placeholder="Type here ......." autocomplete="off">
+          <button type="button" id ="sendMessage"> Send</button>
+
+        </div>
+      </div>
+    </div>
+
+    
+
+
+
+  </body>
+  </html>
